@@ -1,11 +1,10 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Opret bruger</h1>
 
 <div>
     <form method="post">
@@ -16,18 +15,23 @@
         </div>
 
         <div class="form-group">
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" class="form-control" placeholder="Email" />
+        </div>
+
+
+        <div class="form-group">
             <label for="password">Password</label>
             <input id="password" name="password" type="password" class="form-control" placeholder="Password" />
         </div>
 
         <button type="submit" class="btn btn-primary">Log in</button>
 
-        @{ 
+        @{
             if (ViewBag.Message != null) {
                 <p>@ViewBag.Message</p>
             }
         }
     </form>
-
-    <a href="/Home/UserRegistration">Create a new user here.</a>
+    <a href="/">Click here to log in.</a>
 </div>

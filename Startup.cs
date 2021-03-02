@@ -4,10 +4,13 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using CryptoTec.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace CryptoTec
 {
@@ -21,7 +24,16 @@ namespace CryptoTec
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            services.AddControllersWithViews();
+            services.AddDbContext<DbTools>(x => x.UseSqlServer(@"Data Source=DESKTOP-2CPTVPL\JFKK;Initial Catalog=jfkkdb;Integrated Security=True"));
+
+            services.AddDistributedMemoryCache();  // New
+
+            services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+            });
+            services.AddMvc();  //New
+
+            //services.AddControllersWithViews();  // New
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +52,8 @@ namespace CryptoTec
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();  // New
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute(
