@@ -24,6 +24,7 @@ namespace CryptoTec
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+            /* !New! */
             services.AddDbContext<DbTools>(x => x.UseSqlServer(@"Data Source=DESKTOP-2CPTVPL\JFKK;Initial Catalog=jfkkdb;Integrated Security=True"));
 
             services.AddDistributedMemoryCache();  // New
@@ -31,7 +32,8 @@ namespace CryptoTec
             services.AddSession(options => {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
             });
-            services.AddMvc();  //New
+            services.AddDataProtection();  // New
+            services.AddMvc();  // New
 
             //services.AddControllersWithViews();  // New
         }

@@ -8,11 +8,13 @@ namespace CryptoTec.Models
 {
     public class DbTools : DbContext
     {
+        // Database table for `Login`
         public DbSet<Login> Login { get; set; }
+        // Database table for `TodoItem`
         public DbSet<TodoItem> TodoItem { get; set; }
 
-        public DbTools(DbContextOptions<DbTools> options) : base(options) {
-        }
+        /* Constructor */
+        public DbTools(DbContextOptions<DbTools> options) : base(options) { }
 
         // This has been made obsolete because of the connstring inside `startup.cs`
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {

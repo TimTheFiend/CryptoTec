@@ -31,6 +31,10 @@
         <h2>@Html.DisplayFor(m => todoItem.Title)</h2>
         <h3>@Html.DisplayFor(m => todoItem.Description)</h3>
         <h4>@Html.DisplayFor(m => todoItem.Added)</h4>
+        
+        <a href="/Home/DeleteTodo/@todoItem.Id" onclick="return confirm('Are you sure you wish to delete?')">Delete</a>
     }
-
 }
+
+
+
