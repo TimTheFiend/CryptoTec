@@ -14,30 +14,64 @@ using Microsoft.AspNetCore.DataProtection;
 namespace CryptoTec.Controllers
 {
     public class HomeController : Controller {
+        /* Fields */
         private readonly DbTools _dbTools;
         private readonly ILogger<HomeController> _logger;  // Came with creation
-
         private IDataProtector _dataProtecter;
         private readonly IConfiguration _config;
 
-
-
         /* Constructor */
-        public HomeController(ILogger<HomeController> logger,
-            DbTools dbTools,
-            IDataProtectionProvider dataProvider,
-            IConfiguration config
-            ) {
+        public HomeController(ILogger<HomeController> logger, DbTools dbTools, IDataProtectionProvider dataProvider, IConfiguration config) {
             _dbTools = dbTools;
             _config = config;
             _logger = logger;
             _dataProtecter = dataProvider.CreateProtector(_config["SecretKey"]);
         }
 
+        /* Temp */
+        private int GetUserId()
+        {
+            return (int) HttpContext.Session.GetInt32("userId");
+        }
+
+        #region ChangePassword
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            Login user = _dbTools.Login.SingleOrDefault(x => x.Id == (int)HttpContext.Session.GetInt32("userId"));
+            if (user == null)
+            {
+                return Redirect("/");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ChangePassword(ChangePassword model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = _dbTools.Login.SingleOrDefault(x => x.Id == (int)HttpContext.Session.GetInt32("userId"));
+                if (BC.Verify(model.OldPassword, user.Password))
+                {
+                    _dbTools.Login.SingleOrDefault(x => x.Id == user.Id).Password = BC.HashPassword(model.NewPassword);
+                    _dbTools.SaveChanges();
+                    return Redirect("/");
+                }
+                else
+                {
+                    ModelState.AddModelError("OldPassword", "Error in password");
+                }
+            }
+            return View(model);
+        }
+        #endregion EndChangePassword
+
 
         #region Index
         [HttpGet]
         public IActionResult Index() {
+            
             return View();
         }
 
@@ -51,7 +85,6 @@ namespace CryptoTec.Controllers
                     return Redirect("/Home/TodoList");
                 }
             }
-            
             ViewBag.Message = "Error in login.";
             // just to prevent errors.
             return View();
@@ -117,6 +150,9 @@ namespace CryptoTec.Controllers
 
             ViewBag.userId = userId;
 
+            HttpContext.Session.SetString("username", _dbTools.Login.SingleOrDefault(x => x.Id == userId).Username);
+            //var foo = _dbTools.Login.SingleOrDefault(x => x.Id == userId).Username;
+
             List<TodoItem> todos = _dbTools.TodoItem.Where(t => t.loginId == userId).ToList();
             foreach (var todo in todos) {
                 todo.Title = _dataProtecter.Unprotect(todo.Title);
@@ -131,7 +167,8 @@ namespace CryptoTec.Controllers
         [HttpPost]
         public IActionResult TodoList(string itemTitle, string itemDescription) {
             var userId = HttpContext.Session.GetInt32("userId");
-            if (userId == null) {
+            if (userId == null)
+            {
                 return Redirect("/");
             }
 
