@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Logged in, homie";
+}
+
+
+<div>
+    <form method="post">
+        <div>
+            <label for="itemTitle">Title</label>
+            <input id="itemTitle" name="itemTitle" type="text" class="form-control" />
+        </div>
+
+        <div>
+            <label for="itemDescription">Description</label>
+            <input id="itemDescription" name="itemDescription" type="text" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit todo</button>
+        @{
+            if (ViewBag.Message != null) {
+                <p>@ViewBag.Message</p>
+            }
+        }
+
+
+    </form>
+</div>
+
+@if (ViewBag.Todos != null) {
+    @foreach (TodoItem todoItem in ViewBag.Todos) {
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                @if (todoItem.IsDone)
+                {
+                    <h5 class="card-title">✓@Html.DisplayFor(m => todoItem.Title)</h5>
+                }
+                else
+                {
+                    <h5 class="card-title">@Html.DisplayFor(m => todoItem.Title)</h5>
+                }
+                <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(m => todoItem.Added)</h6>
+                <p class="card-text">@Html.DisplayFor(m => todoItem.Description)</p>
+                
+                <a href="/User/FinishTask/@todoItem.Id" class="card-link" onclick="return confirm('Are you sure?')">Finish</a>
+                <a href="/User/EditTodo/@todoItem.Id" class="card-link">Edit</a>
+                <a href="/User/DeleteTodo/@todoItem.Id" class="card-link" onclick="return confirm('Are you sure you wish to delete?')">Delete</a>
+            </div>
+
+        </div>
+        
+    }
+}
+
+
+

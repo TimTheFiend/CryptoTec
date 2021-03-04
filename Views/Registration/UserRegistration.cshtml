@@ -25,13 +25,16 @@
             <input id="password" name="password" type="password" class="form-control" placeholder="Password" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Log in</button>
 
         @{
             if (ViewBag.Message != null) {
-                <p>@ViewBag.Message</p>
+                <p>User has been created succesfully!</p>
+                <a href="/Home/Index">Click here to log in.</a>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-primary">Create user</button>
             }
         }
     </form>
-    <a href="/">Click here to log in.</a>
 </div>
