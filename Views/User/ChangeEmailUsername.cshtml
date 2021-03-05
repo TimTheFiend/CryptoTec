@@ -1,0 +1,22 @@
+﻿@model CryptoTec.Models.Login
+<div>
+    @using (Html.BeginForm("ChangeEmailUsername", "User", FormMethod.Post))
+    {
+        Login user = ViewBag.User;
+        <div>
+            @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+        </div>
+
+        <div>
+            @Html.LabelFor(m => m.Username, new { @class = "col-md-2 control-label" })
+            @Html.TextBoxFor(m => m.Username, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Change Email and/or Username" asp-controller="User" asp-action="ChangeEmailUsername" asp-route-id="@user.Id" />
+            </div>
+        </div>
+    }
+</div>

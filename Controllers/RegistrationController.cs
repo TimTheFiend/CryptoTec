@@ -42,9 +42,8 @@ namespace CryptoTec.Controllers
         {
             Login knownLogin = _dbTools.Login.SingleOrDefault(x => x.Username == username);
 
-            if (knownLogin == null)
+            if (knownLogin == null) // Unique username
             {
-                // Unique username
                 Login login = new Login
                 {
                     Username = username,
