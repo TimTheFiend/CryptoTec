@@ -16,8 +16,8 @@ namespace CryptoTec.Controllers
     public class UserController : Controller
     {
         /* Fields */
-        private readonly DbTools _dbTools;
         private readonly ILogger<UserController> _logger;  // Came with creation
+        private readonly DbTools _dbTools;
         private IDataProtector _dataProtecter;
         private readonly IConfiguration _config;
 
@@ -42,6 +42,7 @@ namespace CryptoTec.Controllers
             return View();
         }
 
+        // Attempts to change/update the user's password after model `ChangePassword` does superficial verification.
         [HttpPost]
         public IActionResult ChangePassword(ChangePassword model)
         {
@@ -50,19 +51,65 @@ namespace CryptoTec.Controllers
                 var user = _dbTools.Login.SingleOrDefault(x => x.Id == (int)HttpContext.Session.GetInt32("userId"));
                 if (BC.Verify(model.OldPassword, user.Password))
                 {
+                    // Should have used `_dbTools.Login.Update` instead.
                     _dbTools.Login.SingleOrDefault(x => x.Id == user.Id).Password = BC.HashPassword(model.NewPassword);
                     _dbTools.SaveChanges();
                     return Redirect("/");
                 }
                 else
                 {
+                    // In case the user mistypes their old password, send the following error.
                     ModelState.AddModelError("OldPassword", "Error in password");
                 }
             }
+            // If there are errors, return the same view, and show the errors to the user.
             return View(model);
         }
         #endregion EndChangePassword
 
+        [HttpGet]
+        public IActionResult ChangeEmailUsername()
+        {
+            var _user = _dbTools.Login.SingleOrDefault(u => u.Id == (int)HttpContext.Session.GetInt32("userId"));
+            ViewBag.User = new Login
+            {
+                Username = _user.Username,
+                Email = _user.Email,
+                Id = _user.Id
+            };
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ChangeEmailUsername(Login model, int id)
+        {
+            if (ModelState.IsValid)
+            {
+                Login _user = _dbTools.Login.SingleOrDefault(u => u.Id == id);
+                if (_user != null)
+                {
+                    // Did the user write in either textbox?
+                    if (!String.IsNullOrEmpty(model.Email))
+                    {
+                        _user.Email = model.Email;
+                    }
+                    if (!String.IsNullOrEmpty(model.Username))
+                    {
+                        // If the user changed `Username`, update the Session to reflect that.
+                        _user.Username = model.Username;
+                        HttpContext.Session.SetString("username", _user.Username);
+                    }
+                    _dbTools.Login.Update(_user);
+                    _dbTools.SaveChanges();
+
+                    return Redirect("/User/TodoList");
+                }
+            }
+            return View(model);
+        }
+
+
+        #region EditTodo
         [HttpGet]
         public IActionResult EditTodo(int id)
         {
@@ -71,17 +118,18 @@ namespace CryptoTec.Controllers
             {
                 return Redirect("/");
             }
-
+            todo.Title = _dataProtecter.Unprotect(todo.Title);
+            todo.Description = _dataProtecter.Unprotect(todo.Description);
             ViewBag.Todo = todo;
             return View();
         }
 
         [HttpPost]
-        public IActionResult EditTodo(TodoItem todoItem, int id)
+        public IActionResult EditTodo(TodoItem todoItem, int id, string itemTitle, string itemDescription)
         {
             var _todoItem = _dbTools.TodoItem.SingleOrDefault(x => x.Id == id);
-            _todoItem.Title = _dataProtecter.Protect(todoItem.Title);
-            _todoItem.Description = _dataProtecter.Protect(todoItem.Description);
+            _todoItem.Title = _dataProtecter.Protect(itemTitle);
+            _todoItem.Description = _dataProtecter.Protect(itemDescription);
 
             _dbTools.TodoItem.Update(_todoItem);
             _dbTools.SaveChanges();
@@ -89,7 +137,7 @@ namespace CryptoTec.Controllers
 
             return Redirect("/User/TodoList");
         }
-
+        #endregion EditTodo
 
         #region FinishTask
         [HttpGet]
@@ -139,15 +187,12 @@ namespace CryptoTec.Controllers
 
             ViewBag.userId = userId;
 
-            //var foo = _dbTools.Login.SingleOrDefault(x => x.Id == userId).Username;
-
             List<TodoItem> todos = _dbTools.TodoItem.Where(t => t.loginId == userId).ToList();
             foreach (var todo in todos)
             {
                 todo.Title = _dataProtecter.Unprotect(todo.Title);
                 todo.Description = _dataProtecter.Unprotect(todo.Description);
             }
-            //ViewBag.Data = _dataProtecter;
             ViewBag.Todos = todos;
 
             return View();

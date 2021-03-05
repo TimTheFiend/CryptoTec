@@ -1,16 +1,19 @@
 ﻿@model CryptoTec.Models.TodoItem
-@{ TodoItem todo = ViewBag.Todo; }
 <div>
     @using (Html.BeginForm("EditTodo", "User", FormMethod.Post))
     {
-        <div>
-            @Html.LabelFor(t => t.Title)
-            @Html.TextBoxFor(t => t.Title, new { Value = todo.Title })
-        </div>
-        <div>
-            @Html.LabelFor(t => t.Description)
-            @Html.TextBoxFor(t => t.Description, new { Value = todo.Description })
-        </div>
+        TodoItem todo = (TodoItem)ViewBag.Todo;
+    <div>
+        @*<label for="itemTitle">Title</label>
+        <input id="itemTitle" name="itemTitle" type="text" class="form-control" value="@todo.Title.ToString()" />*@
+        @Html.LabelFor(t => t.Title, new { @class = "col-md-2 control-label" })
+        @Html.TextBoxFor(t => t.Title, todo.Title, new { @class = "form-control" }) @todo.Title.ToString()
+    </div>
+    <div>
+        <label for="itemDescription">Description</label>
+        <input id="itemDescription" name="itemDescription" type="text" class="form-control" value="@todo.Description.ToString()" />
+
+    </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Save changes" asp-controller="User" asp-action="EditTodo" asp-route-id="@todo.Id" />
@@ -18,4 +21,3 @@
         </div>
     }
 </div>
-
